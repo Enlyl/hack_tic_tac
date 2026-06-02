@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Press+Start+2P&family=Bebas+Neue&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
     <canvas id="matrix-bg" aria-hidden="true"></canvas>
@@ -56,22 +56,25 @@
 
         <section class="scoreboard">
             <div class="score score-hacker" id="score-hacker-card">
-                <span class="score-tag">
-                    <span class="score-sym">[X]</span>
-                    <span data-i18n="hacker">HACKER</span>
-                </span>
-                <span class="score-value" id="score-hacker">0</span>
+                <div class="score-icon" aria-hidden="true">X</div>
+                <div class="score-info">
+                    <span class="score-tag" data-i18n="hacker">HACKER</span>
+                    <span class="score-value" id="score-hacker">0</span>
+                </div>
             </div>
             <div class="score score-draws">
-                <span class="score-tag" data-i18n="draws">DRAWS</span>
-                <span class="score-value" id="score-draws">0</span>
+                <div class="score-icon score-icon-draw" aria-hidden="true">=</div>
+                <div class="score-info">
+                    <span class="score-tag" data-i18n="draws">DRAWS</span>
+                    <span class="score-value" id="score-draws">0</span>
+                </div>
             </div>
             <div class="score score-corp" id="score-corp-card">
-                <span class="score-tag">
-                    <span class="score-sym">[O]</span>
-                    <span data-i18n="corp">CORP</span>
-                </span>
-                <span class="score-value" id="score-corp">0</span>
+                <div class="score-icon" aria-hidden="true">O</div>
+                <div class="score-info">
+                    <span class="score-tag" data-i18n="corp">CORP</span>
+                    <span class="score-value" id="score-corp">0</span>
+                </div>
             </div>
         </section>
 
@@ -260,6 +263,50 @@ ENTROPY = <span class="num">1.5849</span> bits
         <span data-i18n="konami">> RAINBOW_MATRIX_UNLOCKED // PARTY.exe</span>
     </div>
 
-    <script src="js/game.js?v=6"></script>
+    <div class="dice-overlay" id="dice-overlay" aria-hidden="true">
+        <div class="dice-box">
+            <div class="dice-title">&gt; ROLLING_DICE.exe <span class="dice-tag">[ WHO_GOES_FIRST? ]</span></div>
+            <div class="dice-row">
+                <div class="die die-hacker" id="die-hacker" data-value="1">
+                    <svg class="die-svg" viewBox="0 0 100 100" aria-hidden="true">
+                        <rect class="die-bg" x="3" y="3" width="94" height="94" rx="14" />
+                        <g class="pips">
+                            <circle class="pip" cx="22" cy="22" r="9" data-pos="tl" />
+                            <circle class="pip" cx="50" cy="22" r="9" data-pos="tc" />
+                            <circle class="pip" cx="78" cy="22" r="9" data-pos="tr" />
+                            <circle class="pip" cx="22" cy="50" r="9" data-pos="ml" />
+                            <circle class="pip" cx="50" cy="50" r="9" data-pos="mc" />
+                            <circle class="pip" cx="78" cy="50" r="9" data-pos="mr" />
+                            <circle class="pip" cx="22" cy="78" r="9" data-pos="bl" />
+                            <circle class="pip" cx="50" cy="78" r="9" data-pos="bc" />
+                            <circle class="pip" cx="78" cy="78" r="9" data-pos="br" />
+                        </g>
+                    </svg>
+                    <div class="die-label"><span class="die-sym">[X]</span> <span data-i18n="hacker">HACKER</span></div>
+                </div>
+                <div class="die-vs">VS</div>
+                <div class="die die-corp" id="die-corp" data-value="1">
+                    <svg class="die-svg" viewBox="0 0 100 100" aria-hidden="true">
+                        <rect class="die-bg" x="3" y="3" width="94" height="94" rx="14" />
+                        <g class="pips">
+                            <circle class="pip" cx="22" cy="22" r="9" data-pos="tl" />
+                            <circle class="pip" cx="50" cy="22" r="9" data-pos="tc" />
+                            <circle class="pip" cx="78" cy="22" r="9" data-pos="tr" />
+                            <circle class="pip" cx="22" cy="50" r="9" data-pos="ml" />
+                            <circle class="pip" cx="50" cy="50" r="9" data-pos="mc" />
+                            <circle class="pip" cx="78" cy="50" r="9" data-pos="mr" />
+                            <circle class="pip" cx="22" cy="78" r="9" data-pos="bl" />
+                            <circle class="pip" cx="50" cy="78" r="9" data-pos="bc" />
+                            <circle class="pip" cx="78" cy="78" r="9" data-pos="br" />
+                        </g>
+                    </svg>
+                    <div class="die-label"><span data-i18n="corp">CORP</span> <span class="die-sym">[O]</span></div>
+                </div>
+            </div>
+            <div class="dice-status" id="dice-status">&gt; SHAKING...</div>
+        </div>
+    </div>
+
+    <script src="js/game.js?v=7"></script>
 </body>
 </html>

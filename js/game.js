@@ -15,10 +15,11 @@
         current: HACKER,    // who plays now
         mode: 'pve',        // 'pve' | 'pvp'
         diff: 'easy',       // 'easy' | 'hard' (only for pve)
-        running: true,      // game in progress
+        running: false,     // game in progress (true after dice resolves)
         scores: loadScores(),
         lang: 'en',
         isAiThinking: false,
+        diceActive: false,  // true while dice overlay is showing
         lastWinCombo: null, // remember combo for resize redraw
     };
 
@@ -47,9 +48,15 @@
             log_win_corp: '> SYSTEM_PWNED // CORP WINS',
             log_draw: '> CONNECTION_STABLE // DRAW',
             log_reset: '> DISK_FORMATTED // SESSION_RESET',
-            log_first_hacker: '> COIN_FLIP=true // HACKER (X) moves first',
-            log_first_corp: '> COIN_FLIP=true // CORP (O) moves first',
+            log_first_hacker: '> DICE_THROW={h},{c} // HACKER (X) moves first',
+            log_first_corp: '> DICE_THROW={h},{c} // CORP (O) moves first',
             status: 'SYS://TICTACTOE_v2.1 :: NODE_LINK_SECURE :: 42ms ping',
+            dice_title: '> ROLLING_DICE.exe',
+            dice_tag: '[ WHO_GOES_FIRST? ]',
+            dice_shaking: '> SHAKING...',
+            dice_tie: '> DICE_TIE // REROLL',
+            dice_win_hacker: '> HACKER (X) GOES FIRST',
+            dice_win_corp: '> CORP (O) GOES FIRST',
             sym_hacker: '[INJECT]',
             sym_corp: '[FIREWALL]',
             win_hacker: ['> ROOT ACCESS GRANTED',
@@ -85,9 +92,15 @@
             log_win_corp: '> СИСТЕМА_ВЗЛОМАНА // КОРП. ПОБЕДИЛА',
             log_draw: '> СОЕДИНЕНИЕ_СТАБИЛЬНО // НИЧЬЯ',
             log_reset: '> ДИСК_ОТФОРМАТИРОВАН // СЕССИЯ_СБРОШЕНА',
-            log_first_hacker: '> МОНЕТКА=true // ХАКЕР (X) ходит первым',
-            log_first_corp: '> МОНЕТКА=true // КОРП. (O) ходит первой',
+            log_first_hacker: '> КУБИКИ={h},{c} // ХАКЕР (X) ходит первым',
+            log_first_corp: '> КУБИКИ={h},{c} // КОРП. (O) ходит первой',
             status: 'СИС://КРЕСТИКИ_НОЛИКИ_v2.1 :: УЗЕЛ_ЗАЩИЩЁН :: 42мс пинг',
+            dice_title: '> БРОСОК_КУБИКОВ.exe',
+            dice_tag: '[ КТО_ПЕРВЫЙ? ]',
+            dice_shaking: '> ВРАЩЕНИЕ...',
+            dice_tie: '> НИЧЬЯ_КУБИКОВ // ПЕРЕБРОС',
+            dice_win_hacker: '> ХАКЕР (X) ХОДИТ ПЕРВЫМ',
+            dice_win_corp: '> КОРП. (O) ХОДИТ ПЕРВОЙ',
             sym_hacker: '[ВНЕДРЕНИЕ]',
             sym_corp: '[ФАЕРВОЛ]',
             win_hacker: ['> ДОСТУП ПОЛУЧЕН',
@@ -127,6 +140,10 @@
     const $sceneCorp = document.getElementById('scene-corp');
     const $sceneDraw = document.getElementById('scene-draw');
     const $scrollTrack = document.getElementById('scroll-track');
+    const $diceOverlay = document.getElementById('dice-overlay');
+    const $dieHacker = document.getElementById('die-hacker');
+    const $dieCorp = document.getElementById('die-corp');
+    const $diceStatus = document.getElementById('dice-status');
 
     // ===== Web Audio API =====
     let audioCtx = null;
@@ -294,6 +311,7 @@
     // ===== Move =====
     function makeMove(index, player, fromAi = false) {
         if (!state.running) return;
+        if (state.diceActive) return;
         if (state.isAiThinking && !fromAi) return; // ignore clicks during AI
         if (state.board[index] !== null) return;
 
@@ -439,13 +457,91 @@
     }
 
     // ===== Reset =====
-    function pickFirstPlayer() {
-        return Math.random() < 0.5 ? HACKER : CORP;
+    let diceGen = 0;
+    const DICE_TICKS = 14;
+    const DICE_TICK_MS = 80;
+    const DICE_HOLD_MS = 1100;
+    const DICE_TIE_PAUSE_MS = 650;
+    const DICE_TIE_MAX_REROLLS = 4;
+
+    function rollDiceForFirst() {
+        const myGen = ++diceGen;
+        state.diceActive = true;
+        $diceOverlay.classList.add('active');
+        $dieHacker.classList.remove('winner');
+        $dieCorp.classList.remove('winner');
+        $diceStatus.className = 'dice-status';
+        $diceStatus.textContent = t('dice_shaking');
+
+        return new Promise((resolve) => {
+            let rerolls = 0;
+
+            function doRoll() {
+                if (myGen !== diceGen) { resolve(null); return; }
+                $dieHacker.classList.add('rolling');
+                $dieCorp.classList.add('rolling');
+                $diceStatus.className = 'dice-status';
+                $diceStatus.textContent = t('dice_shaking');
+
+                let ticks = 0;
+                const tickInterval = setInterval(() => {
+                    if (myGen !== diceGen) {
+                        clearInterval(tickInterval);
+                        resolve(null);
+                        return;
+                    }
+                    ticks++;
+                    $dieHacker.dataset.value = Math.floor(Math.random() * 6) + 1;
+                    $dieCorp.dataset.value = Math.floor(Math.random() * 6) + 1;
+                    beep(140 + Math.random() * 70, 0.025, 'square', 0.035);
+                    if (ticks >= DICE_TICKS) {
+                        clearInterval(tickInterval);
+                        const h = Math.floor(Math.random() * 6) + 1;
+                        const c = Math.floor(Math.random() * 6) + 1;
+                        $dieHacker.dataset.value = h;
+                        $dieCorp.dataset.value = c;
+                        $dieHacker.classList.remove('rolling');
+                        $dieCorp.classList.remove('rolling');
+                        beep(660, 0.06, 'square', 0.06);
+                        setTimeout(() => beep(880, 0.05, 'square', 0.05), 60);
+
+                        if (h === c && rerolls < DICE_TIE_MAX_REROLLS) {
+                            rerolls++;
+                            $diceStatus.className = 'dice-status win-tie';
+                            $diceStatus.textContent = t('dice_tie');
+                            sfx.glitch();
+                            setTimeout(doRoll, DICE_TIE_PAUSE_MS);
+                            return;
+                        }
+
+                        const winner = h > c ? HACKER : CORP;
+                        $diceStatus.className = 'dice-status ' + (winner === HACKER ? 'win-hacker' : 'win-corp');
+                        $diceStatus.textContent = winner === HACKER ? t('dice_win_hacker') : t('dice_win_corp');
+                        if (winner === HACKER) $dieHacker.classList.add('winner');
+                        else $dieCorp.classList.add('winner');
+                        sfx.win();
+
+                        const sym = winner === HACKER ? 'X' : 'O';
+                        const name = winner === HACKER ? 'HACKER' : 'CORP';
+                        log(`> DICE_THROW=${h},${c} // ${name} (${sym}) moves first`);
+
+                        setTimeout(() => {
+                            if (myGen !== diceGen) { resolve(null); return; }
+                            $diceOverlay.classList.remove('active');
+                            $dieHacker.classList.remove('winner');
+                            $dieCorp.classList.remove('winner');
+                            state.diceActive = false;
+                            resolve(winner);
+                        }, DICE_HOLD_MS);
+                    }
+                }, DICE_TICK_MS);
+            }
+
+            doRoll();
+        });
     }
 
     function announceFirstPlayer() {
-        const key = state.current === HACKER ? 'log_first_hacker' : 'log_first_corp';
-        log(t(key));
         flashActiveScore();
     }
 
@@ -461,11 +557,10 @@
         setTimeout(() => target.classList.remove('active'), 650);
     }
 
-    function resetGame() {
+    async function resetGame() {
         sfx.reset();
         state.board = Array(9).fill(null);
-        state.current = pickFirstPlayer();
-        state.running = true;
+        state.running = false;
         state.isAiThinking = false;
         state.lastWinCombo = null;
         $cells.forEach(c => {
@@ -479,9 +574,18 @@
         $winStroke.setAttribute('y2', 0);
         hideOverlay();
         log(t('log_reset'));
-        announceFirstPlayer();
         updateTurn();
         updateStatus();
+
+        const winner = await rollDiceForFirst();
+        if (winner === null) return; // canceled by a newer reset
+        state.current = winner;
+        state.running = true;
+        announceFirstPlayer();
+        updateTurn();
+        if (state.mode === 'pve' && state.current === CORP && state.running) {
+            aiMove();
+        }
     }
 
     // ===== Render =====
@@ -528,6 +632,14 @@
         });
         updateStatus();
         updateTurn();
+        updateDiceTexts();
+    }
+
+    function updateDiceTexts() {
+        const $title = document.querySelector('#dice-overlay .dice-title');
+        if ($title) {
+            $title.innerHTML = t('dice_title') + ' <span class="dice-tag">' + t('dice_tag') + '</span>';
+        }
     }
 
     // ===== Scores persistence =====
@@ -721,16 +833,14 @@
     }
 
     // ===== Boot =====
-    function init() {
+    async function init() {
         applyI18n();
         renderScores();
         log(t('log_start'));
-        state.current = pickFirstPlayer();
-        updateTurn();
-        announceFirstPlayer();
         $difficultyGroup.style.display = 'flex';
         initMatrix();
         initDrawScroll();
+        updateDiceTexts();
 
         // Recalculate win line on resize / orientation change
         let resizeRaf = null;
@@ -753,6 +863,35 @@
         };
         document.addEventListener('click', unlock);
         document.addEventListener('keydown', unlock);
+
+        // Wait for boot screen to finish, then roll dice for first player
+        const $boot = document.getElementById('boot-screen');
+        let bootDone = false;
+        const startDice = async () => {
+            if (bootDone) return;
+            bootDone = true;
+            const winner = await rollDiceForFirst();
+            if (winner === null) return;
+            state.current = winner;
+            state.running = true;
+            announceFirstPlayer();
+            updateTurn();
+            if (state.mode === 'pve' && state.current === CORP && state.running) {
+                aiMove();
+            }
+        };
+        if ($boot) {
+            $boot.addEventListener('animationend', function onEnd(e) {
+                if (e.animationName === 'boot-fade-out') {
+                    $boot.removeEventListener('animationend', onEnd);
+                    startDice();
+                }
+            });
+            // Fallback in case animationend doesn't fire
+            setTimeout(startDice, 3500);
+        } else {
+            startDice();
+        }
     }
 
     if (document.readyState === 'loading') {
