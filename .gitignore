@@ -15,3 +15,8 @@ desktop.ini
 # Local screenshots / test outputs
 out.png
 screenshot.png
+
+# Local secrets (NEVER commit tokens)
+.env
+.env.*
+!.env.example
