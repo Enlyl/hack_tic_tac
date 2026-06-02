@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Press+Start+2P&family=Bebas+Neue&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body>
     <canvas id="matrix-bg" aria-hidden="true"></canvas>
@@ -55,16 +55,22 @@
         </section>
 
         <section class="scoreboard">
-            <div class="score score-hacker">
-                <span class="score-tag" data-i18n="hacker">HACKER</span>
+            <div class="score score-hacker" id="score-hacker-card">
+                <span class="score-tag">
+                    <span class="score-sym">[X]</span>
+                    <span data-i18n="hacker">HACKER</span>
+                </span>
                 <span class="score-value" id="score-hacker">0</span>
             </div>
             <div class="score score-draws">
                 <span class="score-tag" data-i18n="draws">DRAWS</span>
                 <span class="score-value" id="score-draws">0</span>
             </div>
-            <div class="score score-corp">
-                <span class="score-tag" data-i18n="corp">CORP</span>
+            <div class="score score-corp" id="score-corp-card">
+                <span class="score-tag">
+                    <span class="score-sym">[O]</span>
+                    <span data-i18n="corp">CORP</span>
+                </span>
                 <span class="score-value" id="score-corp">0</span>
             </div>
         </section>
@@ -254,6 +260,6 @@ ENTROPY = <span class="num">1.5849</span> bits
         <span data-i18n="konami">> RAINBOW_MATRIX_UNLOCKED // PARTY.exe</span>
     </div>
 
-    <script src="js/game.js?v=5"></script>
+    <script src="js/game.js?v=6"></script>
 </body>
 </html>

@@ -47,6 +47,8 @@
             log_win_corp: '> SYSTEM_PWNED // CORP WINS',
             log_draw: '> CONNECTION_STABLE // DRAW',
             log_reset: '> DISK_FORMATTED // SESSION_RESET',
+            log_first_hacker: '> COIN_FLIP=true // HACKER (X) moves first',
+            log_first_corp: '> COIN_FLIP=true // CORP (O) moves first',
             status: 'SYS://TICTACTOE_v2.1 :: NODE_LINK_SECURE :: 42ms ping',
             sym_hacker: '[INJECT]',
             sym_corp: '[FIREWALL]',
@@ -83,6 +85,8 @@
             log_win_corp: '> СИСТЕМА_ВЗЛОМАНА // КОРП. ПОБЕДИЛА',
             log_draw: '> СОЕДИНЕНИЕ_СТАБИЛЬНО // НИЧЬЯ',
             log_reset: '> ДИСК_ОТФОРМАТИРОВАН // СЕССИЯ_СБРОШЕНА',
+            log_first_hacker: '> МОНЕТКА=true // ХАКЕР (X) ходит первым',
+            log_first_corp: '> МОНЕТКА=true // КОРП. (O) ходит первой',
             status: 'СИС://КРЕСТИКИ_НОЛИКИ_v2.1 :: УЗЕЛ_ЗАЩИЩЁН :: 42мс пинг',
             sym_hacker: '[ВНЕДРЕНИЕ]',
             sym_corp: '[ФАЕРВОЛ]',
@@ -435,10 +439,32 @@
     }
 
     // ===== Reset =====
+    function pickFirstPlayer() {
+        return Math.random() < 0.5 ? HACKER : CORP;
+    }
+
+    function announceFirstPlayer() {
+        const key = state.current === HACKER ? 'log_first_hacker' : 'log_first_corp';
+        log(t(key));
+        flashActiveScore();
+    }
+
+    function flashActiveScore() {
+        const $hc = document.getElementById('score-hacker-card');
+        const $cc = document.getElementById('score-corp-card');
+        if (!$hc || !$cc) return;
+        $hc.classList.remove('active');
+        $cc.classList.remove('active');
+        void $hc.offsetWidth;
+        const target = state.current === HACKER ? $hc : $cc;
+        target.classList.add('active');
+        setTimeout(() => target.classList.remove('active'), 650);
+    }
+
     function resetGame() {
         sfx.reset();
         state.board = Array(9).fill(null);
-        state.current = HACKER;
+        state.current = pickFirstPlayer();
         state.running = true;
         state.isAiThinking = false;
         state.lastWinCombo = null;
@@ -453,6 +479,7 @@
         $winStroke.setAttribute('y2', 0);
         hideOverlay();
         log(t('log_reset'));
+        announceFirstPlayer();
         updateTurn();
         updateStatus();
     }
@@ -468,6 +495,10 @@
             $turnSymbol.classList.add('corp');
             $turnSymbol.classList.remove('hacker');
         }
+        const $hc = document.getElementById('score-hacker-card');
+        const $cc = document.getElementById('score-corp-card');
+        if ($hc) $hc.classList.toggle('turn-on', state.current === HACKER);
+        if ($cc) $cc.classList.toggle('turn-on', state.current === CORP);
     }
 
     function updateStatus() {
@@ -694,7 +725,9 @@
         applyI18n();
         renderScores();
         log(t('log_start'));
+        state.current = pickFirstPlayer();
         updateTurn();
+        announceFirstPlayer();
         $difficultyGroup.style.display = 'flex';
         initMatrix();
         initDrawScroll();
