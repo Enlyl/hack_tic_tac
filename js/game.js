@@ -1,5 +1,5 @@
 /* ============================================
-   DEDSEC_TTT // game.js
+   hack_tic_tac // game.js
    Hacker vs Corporation - Tic-Tac-Toe
    ============================================ */
 
@@ -37,7 +37,7 @@
             hard: 'HARD',
             reset: 'RESET.exe',
             play_again: 'PLAY_AGAIN',
-            footer: 'DEDSEC // NO_PEACE_FOR_THE_WICKED :: BUILD_2026.06',
+            footer: 'HACK_TIC_TAC // NEON_GRID :: BUILD_2026.06',
             konami: '> RAINBOW_MATRIX_UNLOCKED // PARTY.exe',
             log_start: '> CONNECTION ESTABLISHED :: SESSION_ID 0x4D2F',
             log_x: '> HACKER injected payload :: CELL_',
@@ -73,7 +73,7 @@
             hard: 'СЛОЖНО',
             reset: 'СБРОС.exe',
             play_again: 'ИГРАТЬ_СНОВА',
-            footer: 'DEDSEC // НЕТ_ПОКОЯ_НЕЧИСТЫМ :: СБОРКА_2026.06',
+            footer: 'HACK_TIC_TAC // НЕОНОВАЯ_СЕТЬ :: СБОРКА_2026.06',
             konami: '> РАДУЖНАЯ_МАТРИЦА_РАЗБЛОКИРОВАНА // ТУСОВКА.exe',
             log_start: '> СОЕДИНЕНИЕ УСТАНОВЛЕНО :: SESSION_ID 0x4D2F',
             log_x: '> ХАКЕР внедрил payload :: ЯЧЕЙКА_',
@@ -500,15 +500,24 @@
     }
 
     // ===== Scores persistence =====
+    const SCORES_KEY = 'hack_tic_tac_scores';
+    const SCORES_KEY_OLD = 'dedsec_ttt_scores';
     function loadScores() {
         try {
-            const raw = localStorage.getItem('dedsec_ttt_scores');
+            const raw = localStorage.getItem(SCORES_KEY);
             if (raw) return JSON.parse(raw);
+            const legacy = localStorage.getItem(SCORES_KEY_OLD);
+            if (legacy) {
+                const parsed = JSON.parse(legacy);
+                try { localStorage.setItem(SCORES_KEY, legacy); } catch (e) {}
+                try { localStorage.removeItem(SCORES_KEY_OLD); } catch (e) {}
+                return parsed;
+            }
         } catch (e) {}
         return { hacker: 0, corp: 0, draws: 0 };
     }
     function saveScores() {
-        try { localStorage.setItem('dedsec_ttt_scores', JSON.stringify(state.scores)); } catch (e) {}
+        try { localStorage.setItem(SCORES_KEY, JSON.stringify(state.scores)); } catch (e) {}
     }
 
     // ===== Event handlers =====
@@ -580,16 +589,16 @@
         [523, 659, 784, 1046, 1318].forEach((f, i) => setTimeout(() => beep(f, 0.12, 'square', 0.07), i * 70));
     }
 
-    // ===== Dedsec background (amber data streams + grid) =====
+    // ===== Hacker background (amber data streams + grid) =====
     function initMatrix() {
-        // Code fragments that look like Dedsec "leak" text
+        // Code fragments that look like "leak" text
         const codeSnippets = [
-            '0x4D2F::INJECT_PAYLOAD', 'BREACH:: ctOS_NODE_07', '> root@dedsec:~# ',
-            '[ACCESS GRANTED]', '192.168.1.66 :: PWNED', 'ssh -l dedsec',
-            'deface --target=ctOS', 'ENCRYPT_KEY=0xFA9B12', '>> STAGE_2_OK',
+            '0x4D2F::INJECT_PAYLOAD', 'BREACH:: GRID_NODE_07', '> root@operator:~# ',
+            '[ACCESS GRANTED]', '192.168.1.66 :: PWNED', 'ssh -l operator',
+            'deface --target=GRID', 'ENCRYPT_KEY=0xFA9B12', '>> STAGE_2_OK',
             'BRUTEFORCE :: 4.2M p/s', 'TUNNEL:: onion://x4kq.onion',
             'PACKET_INJECT :: 0.3ms', '> SCAN COMPLETE', '[FIREWALL DOWN]',
-            'TRACE:: ELIMINATED', 'LOGIN AS: dedsec_op', 'M3R50N::HACK_THE_PLANET',
+            'TRACE:: ELIMINATED', 'LOGIN AS: operator_07', 'NEON_GRID::SYS_CALL_OK',
             '>> ping 8.8.8.8 :: 12ms', '> sudo rm -rf /corps', 'ID :: 0xDEADBEEF',
         ];
         const cells = [];

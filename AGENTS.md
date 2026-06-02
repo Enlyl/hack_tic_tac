@@ -1,6 +1,6 @@
 # AGENTS.md
 
-DEDSEC_TTT — vanilla HTML/CSS/JS tic-tac-toe (no build, no deps). Notes for future sessions.
+hack_tic_tac — vanilla HTML/CSS/JS tic-tac-toe (no build, no deps). Notes for future sessions.
 
 ## Run
 
@@ -14,7 +14,7 @@ python -m http.server 8000
 
 ## Cache-bust gotcha
 
-`index.html` loads `css/style.css?v=4` and `js/game.js?v=4`. **Bump the `?v=N` on both tags every time you edit the file** — otherwise the browser keeps serving the old version and your changes look like they didn't apply. (The user reported "анимации нет" once because of exactly this.)
+`index.html` loads `css/style.css?v=5` and `js/game.js?v=5`. **Bump the `?v=N` on both tags every time you edit the file** — otherwise the browser keeps serving the old version and your changes look like they didn't apply. (The user reported "анимации нет" once because of exactly this.)
 
 ## Validation
 
@@ -44,7 +44,7 @@ For visual regression use a headless browser (Edge is at `C:\Program Files (x86)
    ```
 3. **i18n keys must exist in BOTH `en` and `ru` blocks of `i18n` in `js/game.js`.** Every `data-i18n="X"` in HTML needs a matching `X: '...'` in each language object, or the key renders literally.
 4. **Color tokens are amber/red, not green.** `--amber` (primary, #ffb000), `--red` (corp, #ff0033), `--amber-bright` (yellow accent, #ffd24a), `--white` (#f5f5f5). Old names (`--neon`, `--cyan`, `--magenta`, `--yellow`) are gone — do not reintroduce.
-5. **Score persistence** uses `localStorage` key `dedsec_ttt_scores` (`loadScores`/`saveScores` in `js/game.js`). Don't change the key without a migration.
+5. **Score persistence** uses `localStorage` key `hack_tic_tac_scores` (`loadScores`/`saveScores` in `js/game.js`). Legacy key `dedsec_ttt_scores` is auto-migrated and deleted on first read.
 
 ## Hotkeys (UX contract)
 

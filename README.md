@@ -1,6 +1,6 @@
-# DEDSEC_TTT // Hacker vs Corporation
+# hack_tic_tac // Hacker vs Corporation
 
-Стилизованные крестики-нолики в эстетике Dedsec / Watch Dogs 2.
+Стилизованные крестики-нолики в эстетике hacker vs corporation.
 Vanilla HTML/CSS/JS — без сборщиков, без зависимостей.
 
 ## Запуск
@@ -55,4 +55,4 @@ test_01/
 
 ---
 
-`> DEDSEC // NO_PEACE_FOR_THE_WICKED :: BUILD_2026.06`
+`> HACK_TIC_TAC // NEON_GRID :: BUILD_2026.06`

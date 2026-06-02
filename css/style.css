@@ -1,17 +1,17 @@
 /* ============================================
-   DEDSEC_TTT // Hacker vs Corporation theme
+   hack_tic_tac // Hacker vs Corporation theme
    ============================================ */
 
 :root {
     --bg: #0a0a0a;
     --bg-2: #141414;
     --bg-3: #1c1c1c;
-    --amber: #ffb000;          /* Dedsec gold/amber */
+    --amber: #ffb000;          /* hacker gold/amber */
     --amber-bright: #ffd24a;
     --amber-dim: #b87800;
     --amber-glow: rgba(255, 176, 0, 0.55);
     --amber-glow-soft: rgba(255, 176, 0, 0.18);
-    --red: #ff0033;            /* Dedsec red */
+    --red: #ff0033;            /* corporation red */
     --red-dim: #b8001f;
     --red-glow: rgba(255, 0, 51, 0.6);
     --white: #f5f5f5;
@@ -160,7 +160,7 @@ body {
 }
 
 .watermark::after {
-    content: 'DEDSEC';
+    content: 'HACK·TIC·TAC';
     position: absolute;
     inset: 0;
     color: transparent;
@@ -223,7 +223,7 @@ body {
     pointer-events: none;
 }
 
-/* Corner brackets (Dedsec tag-style frame) */
+/* Corner brackets (tag-style frame) */
 .terminal::after {
     content: '';
     position: absolute;
@@ -254,19 +254,20 @@ body {
 }
 
 .ascii-logo {
-    font-family: var(--font-mono);
+    font-family: var(--font-display);
     color: var(--amber);
-    font-size: 10px;
+    font-size: clamp(20px, 3.4vw, 32px);
     line-height: 1;
+    letter-spacing: 0.08em;
     text-shadow:
         0 0 4px var(--amber-glow),
         0 0 10px var(--amber-glow),
         0 0 18px var(--amber-glow);
     animation: glitch-logo 5s infinite;
-    white-space: pre;
-    letter-spacing: 0;
+    white-space: nowrap;
     margin: 0;
-    font-weight: 400;
+    font-weight: 700;
+    overflow: hidden;
 }
 
 @keyframes glitch-logo {
@@ -1158,7 +1159,7 @@ body {
         padding: 16px 16px 12px;
     }
     .ascii-logo {
-        font-size: 8px;
+        font-size: 22px;
     }
     .hud-top {
         flex-wrap: wrap;
@@ -1185,7 +1186,7 @@ body {
         padding: 14px 12px 10px;
     }
     .ascii-logo {
-        font-size: 6px;
+        font-size: 16px;
         max-width: 65%;
     }
     .hud-top {
